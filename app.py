@@ -1,7 +1,8 @@
 import os
 import requests
-from dotenv import load_dotenv
 from collections import defaultdict
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 load_dotenv()  # Take environment variables from .env
 
@@ -96,11 +97,17 @@ def fetch_logged_time(start_date: str, end_date: str):
                 account_id == current_account_id
                 and start_date <= logged_date <= end_date
             ):
+                # Parse the datetime and timezone offset
+                start_time = datetime.strptime(log["started"], "%Y-%m-%dT%H:%M:%S.%f%z")
+                end_time = start_time + timedelta(seconds=time_spent_seconds)
+
                 logged_time_details[logged_date]["details"].append(
                     {
                         "issue": issue_key,
                         "summary": issue_summary,
                         "date": logged_date,
+                        "start_time": start_time.strftime("%H:%M"),
+                        "end_time": end_time.strftime("%H:%M"),
                         "time_spent_hours": round(time_spent_seconds / 3600, 2),
                     }
                 )
@@ -116,9 +123,12 @@ def fetch_logged_time(start_date: str, end_date: str):
         time_logged_hrs = logged_time_details[logged_date]["time_spent_seconds"] / 3600
         print(f"\n{logged_date} - Time logged: {time_logged_hrs:.2f} hours")
 
-        for log in logged_time_details[logged_date]["details"]:
+        for log in sorted(
+            logged_time_details[logged_date]["details"],
+            key=lambda item: item["start_time"],
+        ):
             print(
-                f"{log['date']} - {log['issue']} -> {log['time_spent_hours']} hrs -- {log['summary'][:50]}..."
+                f"{log['date']} | {log['time_spent_hours']:<4} hrs | {log['issue']} | ({log['start_time']} - {log['end_time']}) | {log['summary'][:50]}..."
             )
 
     print(f"\nTotal Time Logged: {total_logged_seconds / 3600:.2f} hours")
@@ -126,7 +136,7 @@ def fetch_logged_time(start_date: str, end_date: str):
 
 # Run the script
 if __name__ == "__main__":
-    start_date = "2025-01-20"
-    end_date = "2025-02-28"
+    start_date = "2025-01-01"
+    end_date = "2025-01-30"
 
     fetch_logged_time(start_date, end_date)
