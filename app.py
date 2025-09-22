@@ -121,7 +121,8 @@ def fetch_logged_time(start_date: str, end_date: str):
     print("\n--- Logged Time in Jira ---")
     for logged_date in sorted(logged_time_details.keys()):
         time_logged_hrs = logged_time_details[logged_date]["time_spent_seconds"] / 3600
-        print(f"\n{logged_date} - Time logged: {time_logged_hrs:.2f} hours")
+        warning_symbol = " ⚠️" if time_logged_hrs < 8 else ""
+        print(f"\n{logged_date} - Time logged: {time_logged_hrs:.2f} hours {warning_symbol}")
 
         for log in sorted(
             logged_time_details[logged_date]["details"],
@@ -136,7 +137,7 @@ def fetch_logged_time(start_date: str, end_date: str):
 
 # Run the script
 if __name__ == "__main__":
-    start_date = "2025-01-01"
-    end_date = "2025-01-30"
+    start_date = "2025-08-25"
+    end_date = "2025-09-30"
 
     fetch_logged_time(start_date, end_date)
