@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,12 +34,12 @@
         .form-section {
             margin-bottom: 20px;
         }
-        
+
         .form-section h2 {
             text-align: center;
             color: #3498db;
         }
-        
+
         .form-section form {
             display: flex;
             flex-direction: column;
@@ -51,19 +52,24 @@
         .form-row {
             display: flex;
             flex-direction: column;
+            margin-bottom: 10px;
         }
 
         label {
             font-weight: bold;
             color: #555;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
-        input[type="date"], input[type="text"], input[type="password"] {
+        input[type="date"],
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
+            font-family: Arial, sans-serif;
             -webkit-appearance: none;
             appearance: none;
             background-color: #f9f9f9;
@@ -85,19 +91,23 @@
             background-color: #2980b9;
         }
 
-        .total-summary {
-            text-align: center;
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #2c3e50;
+        .summary-section {
+            margin-top: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            background-color: #fafafa;
         }
 
-        .expected-summary {
-            text-align: center;
-            font-size: 1.2em;
-            color: #555;
-            margin-bottom: 20px;
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .summary-section .summary-row:last-child {
+            margin-bottom: 0;
         }
 
         .log-day {
@@ -123,7 +133,8 @@
             margin-top: 10px;
         }
 
-        th, td {
+        th,
+        td {
             text-align: left;
             padding: 12px;
             border-bottom: 1px solid #ddd;
@@ -134,8 +145,6 @@
             background-color: #f2f2f2;
             color: #555;
             font-weight: normal;
-            font-size: 0.9em;
-            text-transform: uppercase;
         }
 
         tr:nth-child(even) {
@@ -151,23 +160,33 @@
             text-align: center;
             margin-bottom: 10px;
         }
+
+        #logoutButton {
+            background-color: #e74c3c;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Jira Time Logs</h1>
 
         <div id="credentials-form" class="form-section">
             <h2>Jira Credentials Setup</h2>
+
             <form id="setupForm">
                 <div class="form-row">
                     <label for="jiraDomain">Jira Domain:</label>
-                    <input type="text" id="jiraDomain" name="jiraDomain" placeholder="https://your-domain.atlassian.net" required>
+                    <input type="text" id="jiraDomain" name="jiraDomain" placeholder="https://your-domain.atlassian.net"
+                        required>
                 </div>
+
                 <div class="form-row">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="off"
+                        required>
                 </div>
+
                 <div class="form-row">
                     <label for="apiToken">API Token:</label>
                     <input type="password" id="apiToken" name="apiToken" required>
@@ -177,7 +196,11 @@
         </div>
 
         <div id="log-form-section" class="form-section" style="display:none;">
-            <div id="credentials-info"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div id="credentials-info"></div>
+                <button id="logoutButton">Logout</button>
+            </div>
+
             <form id="logForm">
                 <div class="form-row">
                     <label for="startDate">Start Date:</label>
@@ -236,7 +259,7 @@
                 jira_domain: form.jiraDomain.value,
                 email: form.email.value,
                 api_token: form.apiToken.value,
-                expiry: Date.now() + 24 * 60 * 60 * 1000 // 24 hours from now
+                expiry: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days (one week) from now
             };
             localStorage.setItem(CREDENTIALS_KEY, JSON.stringify(credentials));
             alert('Credentials saved successfully!');
@@ -285,11 +308,17 @@
             }
         });
 
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem(CREDENTIALS_KEY);
+            alert('You have been logged out.');
+            window.location.reload();
+        });
+
         function getWorkingDays(startDate, endDate) {
             let start = new Date(startDate);
             let end = new Date(endDate);
             let count = 0;
-            
+
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                 let day = d.getDay();
                 if (day !== 0 && day !== 6) {
@@ -298,6 +327,26 @@
             }
             return count;
         }
+
+        function displaySummary(resultsDiv, total_logged_hours, workingDays, expectedLoggedHours) {
+            resultsDiv.innerHTML += `
+                <div class="summary-section">
+                    <div class="summary-row">
+                        <span>Total Time Logged:</span>
+                        <span><strong>${total_logged_hours.toFixed(2)} hours</strong></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Logged Working Days:</span>
+                        <span><strong>${workingDays} days</strong></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Expected Logged Time:</span>
+                        <span><strong>${expectedLoggedHours.toFixed(2)} hours</strong></span>
+                    </div>
+                </div>
+            `;
+        }
+
 
         function displayResults(data, startDate, endDate) {
             const resultsDiv = document.getElementById('results');
@@ -308,10 +357,17 @@
             const workingDays = getWorkingDays(startDate, endDate);
             const expectedLoggedHours = workingDays * 8;
 
-            resultsDiv.innerHTML += `<div class="total-summary">Total Time Logged: ${total_logged_hours.toFixed(2)} hours</div>`;
-            resultsDiv.innerHTML += `<div class="expected-summary">Expected Logged Time: ${expectedLoggedHours.toFixed(2)} hours</div>`;
+            displaySummary(resultsDiv, total_logged_hours, workingDays, expectedLoggedHours);
 
-            const sortedDates = Object.keys(logged_time_details).sort();
+            const sortedDates = Object.keys(logged_time_details).sort().reverse();
+
+            // Retrieve credentials to get the Jira domain
+            const credentials = JSON.parse(localStorage.getItem(CREDENTIALS_KEY));
+            if (!credentials) {
+                // Handle case where credentials are not available
+                resultsDiv.innerHTML = `<h2 style="color: red; text-align: center;">Error: Jira credentials not found.</h2>`;
+                return;
+            }
 
             sortedDates.forEach(date => {
                 const dayData = logged_time_details[date];
@@ -338,7 +394,7 @@
                     </thead>
                     <tbody></tbody>
                 `;
-                
+
                 const tbody = table.querySelector('tbody');
 
                 dayData.details.sort((a, b) => a.start_time.localeCompare(b.start_time));
@@ -347,7 +403,7 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${log.time_spent_hours}</td>
-                        <td><a href="#" target="_blank">${log.issue}</a></td>
+                        <td><a href="${credentials.jira_domain}/browse/${log.issue}" target="_blank">${log.issue}</a></td>
                         <td>${log.start_time} - ${log.end_time}</td>
                         <td>${log.summary.slice(0, 70)}...</td>
                     `;
@@ -360,4 +416,5 @@
         }
     </script>
 </body>
+
 </html>
