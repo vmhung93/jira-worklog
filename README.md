@@ -27,6 +27,22 @@ Before running the script, ensure you have:
    ```sh
    pip install -r requirements.txt
    ```
+## Docker Build and Push
+To build the Docker image for this application and push it to Docker Hub, follow these steps:
+
+1.  **Build the Docker image**:
+   Use the following command to build the image with a tag. Replace `docker_hub/jira-worklog:1.0` with your desired Docker Hub username and image tag.
+
+      ```sh
+      docker build . -t docker_hub/jira-worklog:tag
+      ```
+
+2.  **Push the image to Docker Hub**:
+   After building, you can push the image to your Docker Hub repository. Ensure you are logged in to your Docker Hub account via the command line.
+
+      ```sh
+      docker push docker_hub/jira-worklog:tag
+      ```
 
 ## Error Handling
 - The script will print a message if no logged time is found for the given date range.
