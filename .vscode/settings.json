@@ -1,0 +1,8 @@
+{
+  "python.analysis.extraPaths": ["./app/"],
+  "python.analysis.exclude": ["**/build", "**/dist", "**/__pycache__"],
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true
+  }
+}

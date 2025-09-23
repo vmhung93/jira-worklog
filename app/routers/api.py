@@ -45,11 +45,12 @@ async def get_logged_time(
             for log in worklogs:
                 account_id = log["author"]["accountId"]
                 logged_date = log["started"][:10]
+                logged_datetime = datetime.strptime(logged_date, "%Y-%m-%d").date()
                 time_spent_seconds = log["timeSpentSeconds"]
 
                 if (
                     account_id == current_account_id
-                    and request.start_date <= logged_date <= request.end_date
+                    and request.start_date <= logged_datetime <= request.end_date
                 ):
                     start_time = datetime.strptime(
                         log["started"], "%Y-%m-%dT%H:%M:%S.%f%z"
