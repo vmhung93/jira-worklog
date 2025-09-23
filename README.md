@@ -27,6 +27,11 @@ Before running the script, ensure you have:
    ```sh
    pip install -r requirements.txt
    ```
+3. Freeze dependencies:
+   ```sh
+   pip freeze > requirements.txt
+   ```
+
 ## Docker Build and Push
 To build the Docker image for this application and push it to Docker Hub, follow these steps:
 
