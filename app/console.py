@@ -122,7 +122,9 @@ def fetch_logged_time(start_date: str, end_date: str):
     for logged_date in sorted(logged_time_details.keys()):
         time_logged_hrs = logged_time_details[logged_date]["time_spent_seconds"] / 3600
         warning_symbol = " ⚠️" if time_logged_hrs < 8 else ""
-        print(f"\n{logged_date} - Time logged: {time_logged_hrs:.2f} hours {warning_symbol}")
+        print(
+            f"\n{logged_date} - Time logged: {time_logged_hrs:.2f} hours {warning_symbol}"
+        )
 
         for log in sorted(
             logged_time_details[logged_date]["details"],
