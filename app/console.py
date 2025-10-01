@@ -37,7 +37,7 @@ def get_account_id():
 
 # Fetch issues where the user logged time
 def get_issues(start_date: str, end_date: str):
-    SEARCH_URL = f"{JIRA_DOMAIN}/rest/api/2/search"
+    SEARCH_URL = f"{JIRA_DOMAIN}/rest/api/3/search/jql"
 
     # JQL query to find issues where you logged time in the given range
     JQL_QUERY = f'worklogAuthor = currentUser() AND worklogDate >= "{start_date}" AND worklogDate <= "{end_date}"'
@@ -61,7 +61,7 @@ def get_issues(start_date: str, end_date: str):
 
 # Fetch worklogs for each issue
 def get_worklogs(issue_key: str):
-    WORKLOG_URL = f"{JIRA_DOMAIN}/rest/api/2/issue/{issue_key}/worklog"
+    WORKLOG_URL = f"{JIRA_DOMAIN}/rest/api/3/issue/{issue_key}/worklog"
 
     response = requests.get(WORKLOG_URL, headers=HEADERS, auth=(EMAIL, API_TOKEN))
 
@@ -139,7 +139,7 @@ def fetch_logged_time(start_date: str, end_date: str):
 
 # Run the script
 if __name__ == "__main__":
-    start_date = "2025-08-25"
-    end_date = "2025-09-30"
+    start_date = "YYYY-MM-DD"
+    end_date = "YYYY-MM-DD"
 
     fetch_logged_time(start_date, end_date)

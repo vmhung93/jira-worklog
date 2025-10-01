@@ -30,7 +30,7 @@ class JiraService:
     def get_issues(
         self, jira_domain: str, email, api_token: str, start_date: str, end_date: str
     ):
-        search_url = f"{jira_domain}/rest/api/2/search"
+        search_url = f"{jira_domain}/rest/api/3/search/jql"
         jql_query = f'worklogAuthor = currentUser() AND worklogDate >= "{start_date}" AND worklogDate <= "{end_date}"'
         params = {"jql": jql_query, "fields": ["summary"], "maxResults": 100}
         response = requests.get(
@@ -48,7 +48,7 @@ class JiraService:
         )
 
     def get_worklogs(self, jira_domain: str, email: str, api_token, issue_key: str):
-        worklog_url = f"{jira_domain}/rest/api/2/issue/{issue_key}/worklog"
+        worklog_url = f"{jira_domain}/rest/api/3/issue/{issue_key}/worklog"
         response = requests.get(
             worklog_url, headers=self.headers, auth=(email, api_token)
         )
