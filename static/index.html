@@ -140,19 +140,37 @@
 
     <script>
         const CREDENTIALS_KEY = 'jira_credentials';
+        const START_DATE_KEY = 'jira_start_date';
         const API_URL = 'https://jira-worklog-api.onrender.com/api';
 
         document.addEventListener('DOMContentLoaded', () => {
-            checkCredentials();
+            // 1. Initialize dates first so inputs have values before fetchLogs runs
             setInitialDates();
+
+            // 2. Then check credentials (which triggers fetchLogs)
+            checkCredentials();
+            
+            // 3. Save start date to local storage whenever it changes
+            document.getElementById('startDate').addEventListener('change', (e) => {
+                localStorage.setItem(START_DATE_KEY, e.target.value);
+            });
         });
 
         function setInitialDates() {
             const today = new Date();
-            const oneMonthAgo = new Date();
-            oneMonthAgo.setMonth(today.getMonth() - 1);
+            const savedStartDate = localStorage.getItem(START_DATE_KEY);
+            
+            // End Date: Always reset to today's date
             document.getElementById('endDate').value = today.toISOString().slice(0, 10);
-            document.getElementById('startDate').value = oneMonthAgo.toISOString().slice(0, 10);
+
+             // Start Date: Load from storage if it exists, otherwise default to 1 month ago
+            if (savedStartDate) {
+                document.getElementById('startDate').value = savedStartDate;
+            } else {
+                const oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(today.getMonth() - 1);
+                document.getElementById('startDate').value = oneMonthAgo.toISOString().slice(0, 10);
+            }
         }
 
         function checkCredentials() {
@@ -222,7 +240,6 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // Handle the specific "detail" array structure from the API
                     let errorMsg = "Request failed";
 
                     if (typeof data.detail === 'string') {
@@ -245,14 +262,14 @@
 
                 metricsDiv.innerHTML = ''; // Clear skeletons
                 resultsDiv.innerHTML = `
-            <div class="bg-red-50 text-red-700 p-8 rounded-3xl border border-red-100 text-center shadow-sm">
-                <p class="font-bold text-lg mb-1">Sync Failed</p>
-                <p class="text-sm opacity-80 uppercase tracking-tight font-bold mb-4">${finalMessage}</p>
-                <button onclick="fetchLogs()" class="bg-red-600 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-red-700 transition-colors">
-                    Try Again
-                </button>
-            </div>
-        `;
+                    <div class="bg-red-50 text-red-700 p-8 rounded-3xl border border-red-100 text-center shadow-sm">
+                        <p class="font-bold text-lg mb-1">Sync Failed</p>
+                        <p class="text-sm opacity-80 uppercase tracking-tight font-bold mb-4">${finalMessage}</p>
+                        <button onclick="fetchLogs()" class="bg-red-600 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-red-700 transition-colors">
+                            Try Again
+                        </button>
+                    </div>
+                `;
             }
         }
 
