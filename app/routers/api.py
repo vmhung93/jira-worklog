@@ -72,6 +72,9 @@ async def get_logged_time(
                     ] += time_spent_seconds
                     total_logged_seconds += time_spent_seconds
 
+        for date_key, date_data in logged_time_details.items():
+            date_data["details"].sort(key=lambda x: x["start_time"])
+            
         return {
             "logged_time_details": logged_time_details,
             "total_logged_hours": round(total_logged_seconds / 3600, 2),

@@ -6,7 +6,7 @@ FROM python:3.12-alpine AS builder
 WORKDIR /app
 
 # Install build dependencies required by many Python packages
-RUN apk add --no-cache gcc musl-dev
+RUN apk add --no-cache gcc musl-dev libffi-dev
 
 # Copy the requirements file
 COPY requirements.txt .
