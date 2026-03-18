@@ -1,33 +1,33 @@
 # Stage 1: Builder
-# Use a full Python image on Alpine for building and installing dependencies
 FROM python:3.12-alpine AS builder
 
-# Set the working directory
 WORKDIR /app
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Install build dependencies required by many Python packages
 RUN apk add --no-cache gcc musl-dev libffi-dev
 
-# Copy the requirements file
-COPY requirements.txt .
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
 
-# Install dependencies. This will create the uvicorn executable.
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies into a custom location using uv
+RUN uv sync --frozen --no-dev --no-install-project
 
 # Stage 2: Final image
 FROM python:3.12-alpine
 
-# Set the working directory
 WORKDIR /app
 
-# Copy only the installed packages from the builder stage's site-packages
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages/
-
-# Copy the uvicorn executable from the builder stage
-COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+# Copy the virtual environment from builder
+COPY --from=builder /app/.venv /app/.venv
 
 # Copy your application code
 COPY . .
+
+# Make sure the venv is used
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Expose the port
 EXPOSE 8000

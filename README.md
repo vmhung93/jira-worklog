@@ -13,41 +13,42 @@ This script retrieves and displays the time logged in Jira within a specified da
 ## Prerequisites
 Before running the script, ensure you have:
 - Python installed (>= 3.7 recommended).
+- [uv](https://docs.astral.sh/uv/) installed (`pip install uv` or see the official docs).
 - Access to Jira API with the necessary permissions.
-- Installed required dependencies (if applicable).
 
 ## Installation
-1. Create and activate a virtual environment:
+1. Install dependencies using `uv`:
    ```sh
-   python -m venv venv
-   source venv/bin/activate  # On macOS/Linux
-   venv\Scripts\activate    # On Windows
+   uv sync
    ```
-2. Install dependencies (if any are required):
+   This will automatically create a virtual environment and install all dependencies from `pyproject.toml` (or `uv.lock` if present).
+
+2. To add a new dependency:
    ```sh
-   pip install -r requirements.txt
+   uv add <package-name>
    ```
-3. Freeze dependencies:
+
+3. To run the script within the managed environment:
    ```sh
-   pip freeze > requirements.txt
+   uv run python main.py
    ```
 
 ## Docker Build and Push
 To build the Docker image for this application and push it to Docker Hub, follow these steps:
 
-1.  **Build the Docker image**:
+1. **Build the Docker image**:
    Use the following command to build the image with a tag. Replace `docker_hub/jira-worklog:1.0` with your desired Docker Hub username and image tag.
 
-      ```sh
-      docker build . -t docker_hub/jira-worklog:tag
-      ```
+   ```sh
+   docker build . -t docker_hub/jira-worklog:tag
+   ```
 
-2.  **Push the image to Docker Hub**:
-   After building, you can push the image to your Docker Hub repository. Ensure you are logged in to your Docker Hub account via the command line.
+2. **Push the image to Docker Hub**:
+   After building, push the image to your Docker Hub repository. Ensure you are logged in to your Docker Hub account via the command line.
 
-      ```sh
-      docker push docker_hub/jira-worklog:tag
-      ```
+   ```sh
+   docker push docker_hub/jira-worklog:tag
+   ```
 
 ## Error Handling
 - The script will print a message if no logged time is found for the given date range.
@@ -58,4 +59,3 @@ This project is licensed under the MIT License.
 
 ## Contributions
 Feel free to open issues or submit pull requests to improve the script.
-
