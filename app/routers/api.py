@@ -19,10 +19,10 @@ async def get_logged_time(
     *, jira_service: JiraService = Depends(get_jira_service), request: LogRequest
 ):
     try:
-        current_account_id = jira_service.get_account_id(
+        current_account_id = await jira_service.get_account_id(
             request.jira_domain, request.email, request.api_token
         )
-        issues = jira_service.get_issues(
+        issues = await jira_service.get_issues(
             request.jira_domain,
             request.email,
             request.api_token,
@@ -38,7 +38,7 @@ async def get_logged_time(
         for issue in issues:
             issue_key = issue["key"]
             issue_summary = issue["fields"]["summary"]
-            worklogs = jira_service.get_worklogs(
+            worklogs = await jira_service.get_worklogs(
                 request.jira_domain, request.email, request.api_token, issue_key
             )
 
@@ -79,7 +79,7 @@ async def get_logged_time(
             "logged_time_details": logged_time_details,
             "total_logged_hours": round(total_logged_seconds / 3600, 2),
         }
-    except HTTPException as e:
-        raise e
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

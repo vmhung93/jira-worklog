@@ -11,6 +11,11 @@ class LogRequest(BaseModel):
     start_date: date
     end_date: date
 
+    @field_validator("jira_domain", mode="after")
+    @classmethod
+    def normalize_jira_domain(cls, v: HttpUrl) -> str:
+        return str(v).rstrip("/")
+
     @field_validator("end_date", mode="after")
     def validate_date_range(cls, value: date, info: ValidationInfo):
         start_date = info.data.get("start_date")
